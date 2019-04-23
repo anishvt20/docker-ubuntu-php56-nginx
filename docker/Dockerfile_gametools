@@ -1,0 +1,33 @@
+FROM nilson89/docker-php56-dev
+
+WORKDIR /var/www/application
+
+COPY . /var/www/application
+
+RUN chmod -R 777 /var/www/application
+
+RUN chown -R www-data:www-data /var/www/application
+
+RUN composer install
+
+COPY app/config/parameters_docker.yml app/config/parameters.yml
+
+COPY codeception_docker.yml codeception.yml
+
+RUN npm update -g
+
+RUN npm cache clean
+
+RUN npm -v
+
+RUN npm install
+
+RUN sudo npm install -g grunt grunt-cli
+
+RUN bin/acl
+
+RUN bin/console doctrine:migrations:migrate --no-interaction
+
+RUN grunt
+
+RUN bin/console xsd:dump
